@@ -1,0 +1,10 @@
+
+批量ip归属地查询，调用阿里ip库接口
+
+useage：
+
+
+使用用方法： ./ipwhere.pl 8.8.8.8 8.8.8.6 
+
+备注：
+   需要安装perl及扩展LWP::Simple；use JSON; 
