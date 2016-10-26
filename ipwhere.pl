@@ -9,7 +9,7 @@ binmode(STDOUT, ':encoding(utf8)');
 print map{getTbeIParea()} validIP(@ARGV);
 
 sub validIP(){
-my $re=qr(|[0-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5]);
+my $re=qr([0-9]|[0-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5]);
 my @ip=grep{/^($re\.){3}$re$/} @_;
 return @ip;
 }

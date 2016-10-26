@@ -1,10 +1,18 @@
 
-批量ip归属地查询，调用阿里ip库接口
+#### name 批量ip归属地查询，调用阿里ip库接口
 
-useage：
+### useage：
 
 
-使用用方法： ./ipwhere.pl 8.8.8.8 8.8.8.6 
+### 使用用方法： ./ipwhere.pl 8.8.8.8 8.8.8.6 
 
-备注：
-   需要安装perl及扩展LWP::Simple；use JSON; 
+##结果展示
+./ipwhere.pl  8.8.8.8 8.8.8.6 116.211.167.14
+8.8.8.8:美国,,,
+8.8.8.6:美国,,,
+116.211.167.14:中国,湖北省,武汉市,电信
+
+##备注：
+
+   需要安装perl及扩展LWP::Simple ,JSON;
+   可以通过cpanm 简单的安装: cpanm LWP::Simple JSON 
