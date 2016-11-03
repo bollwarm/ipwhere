@@ -20,3 +20,6 @@
 
    需要安装perl及扩展LWP::Simple ,JSON;
    可以通过cpanm 简单的安装: cpanm LWP::Simple JSON 
+
+##
+1103 qqip.pl 修正地址显示乱码,增加多ip查询
