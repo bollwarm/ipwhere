@@ -5,16 +5,24 @@ use Carp;
 use Encode;
 use utf8;
 
-
 my %cache;
 my $ip_start;
 my $tmp;
 my $DEBUG=0;
 
-my $ip=shift;
 my $FD=set_db('QQWry.Dat');
-#print db_version($FD);
-print query($FD,$ip),"\n";
+
+print db_version($FD),"\n";
+
+print map{query($FD,$_)."\n"} validIP(@ARGV);
+
+sub validIP {
+
+my $re=qr([0-9]|[0-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5]);
+my @ip=grep{/^($re\.){3}$re$/} @_;
+return @ip;
+
+}
 
 sub gbk2utf {
 
@@ -36,11 +44,12 @@ sub set_db {
 
 sub init_db {
     my $FD = shift;
+    seek $FD,0,0;
     read $FD, $tmp, 4;
     my $first_index= unpack 'V', $tmp;
     read $FD, $tmp, 4;
     my $last_index = unpack 'V', $tmp;
-    print "DEBUG\::inti_dab\::OUT $first_index $last_index\n" if $DEBUG;
+    print "DEBUG\::init_dab\::OUT $first_index $last_index\n" if $DEBUG;
    return ($first_index,$last_index);
 }
 
@@ -98,7 +107,7 @@ sub clear {
 sub db_version {
      my $FD= shift;
     print "DEBUG\::db_version\::IN $FD\n" if $DEBUG;
-    return query($FD,'255.255.255.0');    # db version info is held there
+    return query($FD,'255.255.255.0');
 }
 
 
@@ -106,7 +115,7 @@ sub result {
     my ( $FD, $ip ) = @_;
     print "DEBUG\::result\::IN 1 $FD 2 $ip\n" if $DEBUG;
     my $index = Lindex($FD,$ip);
-    return unless $index;                    # can't find index
+    return unless $index; 
 
     my ( $base, $ext ) = (q{}) x 2;
 
@@ -148,13 +157,13 @@ sub result {
         $ext  =ext($FD);
     }
 
-    # 'CZ88.NET' means we don't have useful information
     $base = '' if $base =~ /CZ88\.NET/;
     $ext = '' if $ext =~ /CZ88\.NET/;
     return ( $base, $ext );
 }
 
 sub Lindex {
+
     my ( $FD, $ip ) = @_;
    print "DEBUG\::Lindex\::IN 1 $FD, 2 $ip\n" if $DEBUG; 
     my $low = 0;
@@ -162,7 +171,7 @@ sub Lindex {
     my $up  = ( $last_index - $first_index) / 7;
     my ( $mid, $ip_start, $ip_end );
 
-    # find the index using binary search
+    # 二分法查找索引
     while ( $low <= $up ) {
         $mid = int( ( $low + $up ) / 2 );
         seek $FD, $first_index + $mid * 7, 0;
@@ -200,10 +209,9 @@ sub Lseek {
     seek $FD, $offset, 0;
 }
 
-# get string ended by \0
 
 sub str {
-    my $FD = shift;
+    #my $FD = shift;
     print "DEBUG\::str\::IN $FD\n" if $DEBUG;
     my $str;
 
@@ -216,22 +224,36 @@ sub str {
     print "DEBUG\::str\::OUT $sstr\n" if $DEBUG;
     return $sstr;
 }
+sub strc {
+    #my $FD = shift;
+    print "DEBUG\::strc\::IN $FD\n" if $DEBUG;
+    my $str;
+
+    read $FD, $tmp, 1;
+    while ( ord $tmp > 0 ) {
+        $str .= $tmp;
+        read $FD, $tmp, 1;
+    }
+    print "DEBUG\::strc\::OUT $str\n" if $DEBUG;
+    return $str;
+}
+
 
 sub ext {
-    my $FD = shift;
-   print "DEBUG\::ext\::IN $FD\n" if $DEBUG;
+    #my $FD = shift;
+    print "DEBUG\::ext\::IN $FD\n" if $DEBUG;
     read $FD, $tmp, 1;
     my $mode = ord $tmp;
 
     if ( $mode == 1 || $mode == 2 ) {
         Lseek($FD);
         return str($FD);
-        print "DEBUG\::ext\::OUT str($FD)\n" if $DEBUG;
+        print "DEBUG\::ext1\::OUT str($FD)\n" if $DEBUG;
     }
     else {
-        print "DEBUG\::ext\::OUT chr($mode) str($FD)\n" if $DEBUG;
-        return chr($mode) . str($FD);
+        my $str=gbk2utf(chr($mode) . strc($FD));
+        print "DEBUG\::ext2\::OUT $str\n" if $DEBUG; 
+        return $str;
     }
 }
 
-close $FD if $FD;
