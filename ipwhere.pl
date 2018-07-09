@@ -8,7 +8,7 @@ use Encode;
 #binmode(STDOUT, ':encoding(utf8)');
 
 print map{getTbeIParea($_)} validIP(@ARGV);
-print map{getSinaIParea($_)} validIP(@ARGV);
+#print map{getSinaIParea($_)} validIP(@ARGV);
 print map{getBaiduIParea($_)} validIP(@ARGV);
 print map{getPcoIParea($_)} validIP(@ARGV);
 my %ipcache;
